@@ -6,17 +6,21 @@ class DBClient {
     const port = process.env.DB_PORT || 27017;
     const database = process.env.DB_DATABASE || 'files_manager';
     const url = `mongodb://${host}:${port}`;
-    this.status = false;
-    const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
-    client.connect((error) => {
-      if (error) {
-        this.status = false;
-      } else {
+    this.client = new MongoClient(url);
+    this.db = null;
+    this.status = false;
+
+    this.client.connect()
+      .then(() => {
+        this.db = this.client.db(database);
         this.status = true;
-        this.db = client.db(database);
-      }
-    });
+        console.log('MongoDB connected');
+      })
+      .catch((error) => {
+        this.status = false;
+        console.error('MongoDB connection error:', error.message);
+      });
   }
 
   isAlive() {
@@ -24,10 +28,12 @@ class DBClient {
   }
 
   async nbUsers() {
+    if (!this.db) return 0;
     return this.db.collection('users').countDocuments();
   }
 
   async nbFiles() {
+    if (!this.db) return 0;
     return this.db.collection('files').countDocuments();
   }
 }
