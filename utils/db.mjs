@@ -1,4 +1,6 @@
-import { MongoClient } from 'mongodb';
+import mongodb from 'mongodb';
+
+const { MongoClient } = mongodb;
 
 class DBClient {
   constructor() {
@@ -15,11 +17,9 @@ class DBClient {
       .then(() => {
         this.db = this.client.db(database);
         this.status = true;
-        console.log('MongoDB connected');
       })
-      .catch((error) => {
+      .catch(() => {
         this.status = false;
-        console.error('MongoDB connection error:', error.message);
       });
   }
 
